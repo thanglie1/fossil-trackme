@@ -1,5 +1,7 @@
 package com.trackmeapplication.ui.home;
 
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,8 @@ import com.trackmeapplication.R;
 
 public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
+    double speed;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -29,7 +33,7 @@ public class HomeFragment extends Fragment {
 
             }
         });
-        final TextView textView = root.findViewById(R.id.txt_current_speed);
+        final TextView textView = root.findViewById(R.id.txt_str_current_speed);
         homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {

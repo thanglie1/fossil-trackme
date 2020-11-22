@@ -52,7 +52,7 @@ import java.util.List;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
-public class MapFragment extends SupportMapFragment implements OnMapReadyCallback, LocationListener {
+public class MapFragment extends SupportMapFragment implements OnMapReadyCallback, LocationListener{
     public static final int PERMISSION_REQUEST_CODE = 202;
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; //10*1 10 meters
     private static final long MIN_TIME_BW_UPDATES = 1000 * 1; // 1 second
@@ -61,6 +61,14 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     private MapViewModel mapViewModel;
     LocationManager locationManager;
     double speed;
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
 
     public MapFragment() {
         getMapAsync(this);
@@ -161,7 +169,9 @@ public class MapFragment extends SupportMapFragment implements OnMapReadyCallbac
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            speed = location.getSpeed();
+            TextView textView = getActivity().findViewById(R.id.txt_current_speed);
+            textView.setText(String.valueOf(location.getSpeed()));
+//            speed = location.getSpeed();
         }
     }
 }
