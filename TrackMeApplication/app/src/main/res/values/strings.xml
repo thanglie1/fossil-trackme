@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">TrackMe</string>
+    <string name="title_details">Details</string>
+    <string name="title_map">Map</string>
+    <string name="title_tracks">Tracks &amp; Markers</string>
+    <string name="maps_api_key">AIzaSyB62LlBxv0L7ojfPA9xUQrskFBe42s8FSU</string>
+</resources>
