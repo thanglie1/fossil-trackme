@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="green_52">#071702</color>
+    <color name="green_52">#330000</color>
     <color name="white">#ffffff</color>
     <color name="grey_90">#e0ebeb</color>
     <color name="black">#000000</color>
     <color name="grey_70">#507c7c</color>
+    <color name="green_55">#BC1aff8c</color>
     <color name="blue_sky_50">#00ffff</color>
     <color name="red_50">#ff0000</color>
     <color name="green_50">#00ff99</color>

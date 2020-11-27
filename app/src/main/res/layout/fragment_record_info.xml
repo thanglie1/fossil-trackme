@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:visibility="gone"
+    android:layout_width="wrap_content"
+    android:orientation="horizontal"
+    android:layout_gravity="center_horizontal"
+    android:weightSum="3"
+    android:background="@color/green_55"
+    android:paddingTop = "2dp"
+    android:paddingBottom = "2dp"
+    android:paddingLeft = "10dp"
+    android:paddingRight = "10dp"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/linearCurrentSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txt_str_current_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/speed"
+            android:textColor="@color/green_52"
+            android:textSize="@dimen/text_size_normal" />
+
+        <TextView
+            android:id="@+id/txt_current_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0 m/s"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_size_big"
+            android:textColor="@color/green_52" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearCurrentDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginLeft="15dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txt_str_current_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_normal"
+            android:textColor="@color/green_52"
+            android:text="@string/distance" />
+
+        <TextView
+            android:id="@+id/txt_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0 m"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_size_big"
+            android:textColor="@color/green_52" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginLeft="15dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txt_str_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_normal"
+            android:textColor="@color/green_52"
+            android:text="@string/duration" />
+
+        <Chronometer
+            android:id="@+id/chronometer_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/green_52"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_size_big" />
+    </LinearLayout>
+
+</LinearLayout>

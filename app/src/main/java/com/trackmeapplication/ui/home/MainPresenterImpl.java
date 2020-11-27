@@ -15,4 +15,9 @@ public class MainPresenterImpl implements IMainPresenter {
     public void onDetach() {
 
     }
+
+    @Override
+    public void updateSuccessfullyLocation() {
+        mainView.onUpdateLocation();
+    }
 }

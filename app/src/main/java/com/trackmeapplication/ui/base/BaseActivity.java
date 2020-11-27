@@ -13,12 +13,6 @@ public abstract class BaseActivity extends MvpActivity {
     @LayoutRes
     protected abstract Integer getLayoutId();
 
-    @IdRes
-    protected abstract Integer getSlideMenuId();
-
-    @IdRes
-    protected abstract Integer getBtnMenuId();
-
     abstract protected void initialized();
 
     @Override
