@@ -25,7 +25,7 @@
             android:id="@+id/fragment_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            layout="@layout/fragment_record_info"
+            layout="@layout/layout_record_info"
             android:layout_gravity="center_horizontal"
             android:orientation="horizontal" />
 

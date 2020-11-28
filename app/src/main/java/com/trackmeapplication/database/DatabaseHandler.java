@@ -72,4 +72,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
         return record;
     }
+
+    public ArrayList<RouteRecord> loadData() {
+        String query = "SELECT * FROM " + TABLE_NAME;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        ArrayList<RouteRecord> result = new ArrayList<>();
+        while (cursor.moveToNext()){
+            RouteRecord record= new RouteRecord();
+            record.setID(Long.parseLong(cursor.getString(0)));
+            record.setDistance(Float.parseFloat(cursor.getString(1)));
+            record.setDuration(Integer.parseInt(cursor.getString(2)));
+            record.setAvgSpeed(Float.parseFloat(cursor.getString(3)));
+
+            LatLng startLocation = new Gson().fromJson(cursor.getString(4), LatLng.class);
+            record.setStartLocation(startLocation);
+            ArrayList<List<LatLng>> route = new Gson().fromJson(cursor.getString(5), new TypeToken<ArrayList<List<LatLng>>>(){}.getType());
+            record.setRoute(route);
+            result.add(record);
+        }
+        db.close();
+        return result;
+    }
 }

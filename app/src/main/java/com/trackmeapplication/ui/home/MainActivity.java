@@ -10,12 +10,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.trackmeapplication.R;
 import com.trackmeapplication.mvp.MvpPresenter;
 import com.trackmeapplication.ui.base.BaseActivity;
+import com.trackmeapplication.ui.base.BaseFragment;
 import com.trackmeapplication.ui.home.map.MapFragment;
 import com.trackmeapplication.ui.home.tracks.TracksFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import java.util.ArrayList;
@@ -26,9 +26,9 @@ public class MainActivity extends BaseActivity implements IMainView {
     private IMainPresenter presenter = new MainPresenterImpl();
 
     private FragmentManager fm = getSupportFragmentManager();
-    final Fragment mapFragment = new MapFragment();
-    final Fragment tracksFragment = new TracksFragment();
-    Fragment active = mapFragment;
+    final BaseFragment mapFragment = new MapFragment();
+    final BaseFragment tracksFragment = new TracksFragment();
+    BaseFragment active = mapFragment;
 
     static final int PERMISSION_REQUEST_CODE = 202;
     static final String[] PERMISSIONS = new String[]{
@@ -71,8 +71,9 @@ public class MainActivity extends BaseActivity implements IMainView {
                         case R.id.nav_tracks:
                             fm.beginTransaction().hide(active).show(tracksFragment).commit();
                             active = tracksFragment;
-                            return true;
+                            break;
                     }
+                    HomeApplication.getInstance().updateCurrentFragment(active);
                     return true;
                 }
             };

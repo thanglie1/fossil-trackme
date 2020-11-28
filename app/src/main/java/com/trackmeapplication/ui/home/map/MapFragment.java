@@ -20,8 +20,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
@@ -39,14 +37,16 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.trackmeapplication.R;
 import com.trackmeapplication.database.DatabaseHandler;
 import com.trackmeapplication.database.RouteRecord;
+import com.trackmeapplication.ui.base.BaseFragment;
+import com.trackmeapplication.mvpFragment.MvpFragmentPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener {
-    private MapViewModel mapViewModel;
+public class MapFragment extends BaseFragment implements IMapView, OnMapReadyCallback, LocationListener {
+    private IMapPresenter presenter = new MapPresenterImpl();
     private GoogleMap mMap;
     LocationManager locationManager;
     Location lastLocation;
@@ -70,15 +70,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     boolean isRunning;
     long pauseOffSet;
 
+    @Override
+    protected MvpFragmentPresenter getPresenter() {
+        return presenter;
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        mapViewModel =
-                new ViewModelProvider(this).get(MapViewModel.class);
+        super.onCreate();
         View root = inflater.inflate(R.layout.fragment_map, container, false);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.fragment_google_map);
         mapFragment.getMapAsync(this);
 
-//        deleteDatabase("RouteRecordDB.db");
         txtCurrentSpeed = root.findViewById(R.id.txt_current_speed);
         txtDistance = root.findViewById(R.id.txt_distance);
         fragmentRecord = root.findViewById(R.id.fragment_record);
@@ -176,12 +179,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     private void saveDatabase() {
         DatabaseHandler handler = new DatabaseHandler(getActivity(), null, null, 1);
+        if (startLocation == null)
+            return;
         ArrayList<List<LatLng>> routeList = new ArrayList<List<LatLng>>();
         for (Polyline polyline: polylineList) {
             routeList.add(polyline.getPoints());
         }
         RouteRecord record = new RouteRecord(System.currentTimeMillis()/1000, distance, duration, distance /duration, new LatLng(startLocation.getLatitude(), startLocation.getLongitude()), routeList);
-        handler.add(record);
+        presenter.saveDatabase(record);
     }
 
     private void startChronometer() {
