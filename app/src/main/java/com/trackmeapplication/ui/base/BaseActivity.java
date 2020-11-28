@@ -2,12 +2,9 @@ package com.trackmeapplication.ui.base;
 
 import android.os.Bundle;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
 
-import com.trackmeapplication.TrackMeApplication;
 import com.trackmeapplication.mvp.MvpActivity;
-import com.trackmeapplication.mvp.MvpPresenter;
 
 public abstract class BaseActivity extends MvpActivity {
     @LayoutRes
@@ -19,7 +16,7 @@ public abstract class BaseActivity extends MvpActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutId());
-        TrackMeApplication.getInstance().updateCurrentActivity(this);
+//        TrackMeApplication.getInstance().updateCurrentActivity(this);
         initialized();
     }
 }

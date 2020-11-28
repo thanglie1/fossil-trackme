@@ -10,7 +10,7 @@ public class TracksViewModel extends ViewModel {
 
     public TracksViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("Tracks");
     }
 
     public LiveData<String> getText() {

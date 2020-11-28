@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/fragment_map"
+        android:id="@+id/nav_map"
         android:icon="@drawable/ic_map"
         android:title="@string/title_map" />
 
     <item
-        android:id="@+id/navigation_tracks"
+        android:id="@+id/nav_tracks"
         android:icon="@drawable/ic_history"
         android:title="@string/title_tracks" />
-
 </menu>
