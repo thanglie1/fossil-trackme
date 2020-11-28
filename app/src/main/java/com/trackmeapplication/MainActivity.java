@@ -1,4 +1,4 @@
-package com.trackmeapplication.ui.home;
+package com.trackmeapplication;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -7,28 +7,24 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.trackmeapplication.R;
-import com.trackmeapplication.mvp.MvpPresenter;
-import com.trackmeapplication.ui.base.BaseActivity;
-import com.trackmeapplication.ui.base.BaseFragment;
 import com.trackmeapplication.ui.home.map.MapFragment;
 import com.trackmeapplication.ui.home.tracks.TracksFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends BaseActivity implements IMainView {
-    private IMainPresenter presenter = new MainPresenterImpl();
-
+public class MainActivity extends AppCompatActivity {
     private FragmentManager fm = getSupportFragmentManager();
-    final BaseFragment mapFragment = new MapFragment();
-    final BaseFragment tracksFragment = new TracksFragment();
-    BaseFragment active = mapFragment;
+    final Fragment mapFragment = new MapFragment();
+    final Fragment tracksFragment = new TracksFragment();
+    Fragment active = mapFragment;
 
     static final int PERMISSION_REQUEST_CODE = 202;
     static final String[] PERMISSIONS = new String[]{
@@ -38,25 +34,6 @@ public class MainActivity extends BaseActivity implements IMainView {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION
     };
-
-    public MainActivity() {
-    }
-
-    @Override
-    protected Integer getLayoutId() {
-        return R.layout.activity_main;
-    }
-
-    @Override
-    protected void initialized() {
-        //creat
-        checkPermission(PERMISSIONS);
-        BottomNavigationView bottomNav = findViewById(R.id.nav_view);
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
-
-        fm.beginTransaction().add(R.id.fragment_container, tracksFragment, "1").hide(tracksFragment).commit();
-        fm.beginTransaction().add(R.id.fragment_container, mapFragment, "0").commit();
-    }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -73,19 +50,22 @@ public class MainActivity extends BaseActivity implements IMainView {
                             active = tracksFragment;
                             break;
                     }
-                    HomeApplication.getInstance().updateCurrentFragment(active);
                     return true;
                 }
             };
 
     @Override
-    protected MvpPresenter getPresenter() {
-        return presenter;
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //creat
+        setContentView(R.layout.activity_main);
+        deleteDatabase("RouteRecordDB.db");
+        checkPermission(PERMISSIONS);
+        BottomNavigationView bottomNav = (BottomNavigationView) findViewById(R.id.nav_view);
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+
+        fm.beginTransaction().add(R.id.fragment_container, tracksFragment, "1").hide(tracksFragment).commit();
+        fm.beginTransaction().add(R.id.fragment_container, mapFragment, "0").commit();
     }
 
     public void checkPermission(String... permissions) {

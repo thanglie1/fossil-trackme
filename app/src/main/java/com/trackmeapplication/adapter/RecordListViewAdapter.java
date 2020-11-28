@@ -22,6 +22,10 @@ public class RecordListViewAdapter implements ListAdapter {
         this.context = context;
     }
 
+    public void setRecords(ArrayList<RouteRecord> records) {
+        this.records = records;
+    }
+
     @Override
     public boolean areAllItemsEnabled() {
         return false;
@@ -77,9 +81,9 @@ public class RecordListViewAdapter implements ListAdapter {
             TextView txtViewSpeed = (TextView)convertView.findViewById(R.id.txt_record_avg_speed);
             TextView txtViewDuration = (TextView)convertView.findViewById(R.id.txt_record_duration);
             TextView txtViewDistance = (TextView)convertView.findViewById(R.id.txt_record_distance);
-            txtViewSpeed.setText(String.valueOf(record.getAvgSpeed()));
-            txtViewDuration.setText(String.valueOf(record.getDuration()));
-            txtViewDistance.setText(String.valueOf(record.getDistance()));
+            txtViewSpeed.setText(("%1 m/s").replace("%1", String.format("%.02f", record.getAvgSpeed())));
+            txtViewDuration.setText(("%1 s").replace("%1", String.valueOf(record.getDuration())));
+            txtViewDistance.setText(("%1 m").replace("%1", String.format("%.02f", record.getDistance())));
         }
         return convertView;
     }

@@ -3,8 +3,6 @@
     package="com.trackmeapplication">
 
     <uses-permission android:name = "android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name = "android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name = "android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name = "android.permission.INTERNET" />
     <uses-permission android:name = "android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name = "android.permission.ACCESS_FINE_LOCATION" />
@@ -21,18 +19,15 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/maps_api_key" />
-
-        <activity android:name=".ui.SpashActivity"
-            android:label="@string/app_name">>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".ui.home.MainActivity"></activity>
-        <activity android:name=".ui.home.map.MapsActivity"></activity>
 
 
     </application>

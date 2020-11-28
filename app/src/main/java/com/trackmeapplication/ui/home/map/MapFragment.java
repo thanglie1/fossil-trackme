@@ -17,9 +17,13 @@ import android.view.ViewGroup;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
@@ -37,47 +41,40 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.trackmeapplication.R;
 import com.trackmeapplication.database.DatabaseHandler;
 import com.trackmeapplication.database.RouteRecord;
-import com.trackmeapplication.ui.base.BaseFragment;
-import com.trackmeapplication.mvpFragment.MvpFragmentPresenter;
+import com.trackmeapplication.ui.sharedData.ListViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MapFragment extends BaseFragment implements IMapView, OnMapReadyCallback, LocationListener {
-    private IMapPresenter presenter = new MapPresenterImpl();
+public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener {
+    private ListViewModel viewModel;
+    private MapViewModel mapViewModel;
     private GoogleMap mMap;
-    LocationManager locationManager;
-    Location lastLocation;
-    Location startLocation;
-    ArrayList<Polyline> polylineList = new ArrayList<Polyline>();
+    private LocationManager locationManager;
+    private Location lastLocation;
+    private Location startLocation;
+    private ArrayList<Polyline> polylineList = new ArrayList<Polyline>();
 
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; //10*1 10 meters
     private static final long MIN_TIME_BW_UPDATES = 1000 * 1; // 1 second
 
-    float distance;
-    float currentSpeed;
-    int duration;
 
-    TextView txtCurrentSpeed;
-    TextView txtDistance;
-    Timer reloadLocation;
-    View fragmentRecord;
-    View fragmentPauseStop;
+    private TextView txtCurrentSpeed;
+    private TextView txtDistance;
+    private Timer reloadLocation;
+    private View fragmentRecord;
+    private View fragmentPauseStop;
 
-    Chronometer chronometer;
-    boolean isRunning;
-    long pauseOffSet;
+    private Chronometer chronometer;
+    private boolean isRunning;
+    private long pauseOffSet;
 
-    @Override
-    protected MvpFragmentPresenter getPresenter() {
-        return presenter;
-    }
+    public MapFragment() {}
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        super.onCreate();
         View root = inflater.inflate(R.layout.fragment_map, container, false);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.fragment_google_map);
         mapFragment.getMapAsync(this);
@@ -134,6 +131,29 @@ public class MapFragment extends BaseFragment implements IMapView, OnMapReadyCal
         chronometer.setFormat("%s s");
         chronometer.setBase(SystemClock.elapsedRealtime());
 
+        viewModel = new ViewModelProvider(this).get(ListViewModel.class);
+        viewModel.getRecords().observe(getViewLifecycleOwner(), new Observer<ArrayList<RouteRecord>>() {
+            @Override
+            public void onChanged(ArrayList<RouteRecord> records) {
+
+            }
+        });
+
+        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
+        mapViewModel.getCurrentSpeed().observe(getViewLifecycleOwner(), new Observer<Float>() {
+            @Override
+            public void onChanged(Float aFloat) {
+                txtCurrentSpeed.setText(("%1 m/s").replace("%1" ,String.valueOf(aFloat)));
+            }
+        });
+
+        mapViewModel.getDistance().observe(getViewLifecycleOwner(), new Observer<Float>() {
+            @Override
+            public void onChanged(Float aFloat) {
+                txtDistance.setText(("%1 m").replace("%1" ,String.format("%.02f", aFloat)));
+            }
+        });
+
         return root;
     }
 
@@ -185,8 +205,9 @@ public class MapFragment extends BaseFragment implements IMapView, OnMapReadyCal
         for (Polyline polyline: polylineList) {
             routeList.add(polyline.getPoints());
         }
-        RouteRecord record = new RouteRecord(System.currentTimeMillis()/1000, distance, duration, distance /duration, new LatLng(startLocation.getLatitude(), startLocation.getLongitude()), routeList);
-        presenter.saveDatabase(record);
+        int elapsedSeconds = isRunning ? (int)(SystemClock.elapsedRealtime() - chronometer.getBase())/1000 : (int) pauseOffSet/1000;
+        RouteRecord record = new RouteRecord(System.currentTimeMillis()/1000, mapViewModel.getDistance().getValue(), elapsedSeconds, mapViewModel.getDistance().getValue() /elapsedSeconds, new LatLng(startLocation.getLatitude(), startLocation.getLongitude()), routeList);
+        handler.add(record);
     }
 
     private void startChronometer() {
@@ -213,13 +234,11 @@ public class MapFragment extends BaseFragment implements IMapView, OnMapReadyCal
 
     @Override
     public void onLocationChanged(Location location) {
-        currentSpeed = location.getSpeed();
-        txtCurrentSpeed.setText(("%1 m/s").replace("%1" ,String.format("%.02f", currentSpeed)));
+        mapViewModel.setCurrentSpeed(location.getSpeed());
 
         if (isRunning) {
             moveCamera(location,-1);
-            distance += location.distanceTo(lastLocation);
-            txtDistance.setText(("%1 m").replace("%1" ,String.format("%.02f", distance)));
+            mapViewModel.setDistance(mapViewModel.getDistance().getValue() + location.distanceTo(lastLocation));
             Polyline polyline = mMap.addPolyline(new PolylineOptions().clickable(true)
                     .color(getResources().getColor(R.color.red_50))
                     .add(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()),
