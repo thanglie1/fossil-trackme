@@ -1,4 +1,4 @@
-package com.trackmeapplication.ui.tracks;
+package com.trackmeapplication.ui.home.tracks;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

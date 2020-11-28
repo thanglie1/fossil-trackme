@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.map.MapFragment">
+    tools:context=".ui.home.map.MapFragment">
 
     <fragment
         android:id="@+id/fragment_google_map"

@@ -1,4 +1,4 @@
-package com.trackmeapplication.ui.map;
+package com.trackmeapplication.ui.home.map;
 
 import androidx.lifecycle.ViewModel;
 

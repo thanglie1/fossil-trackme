@@ -1,63 +1,26 @@
 package com.trackmeapplication.ui.home;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.provider.Settings;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Chronometer;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.tabs.TabLayout;
 import com.trackmeapplication.R;
-import com.trackmeapplication.database.DatabaseHandler;
-import com.trackmeapplication.database.RouteRecord;
 import com.trackmeapplication.mvp.MvpPresenter;
 import com.trackmeapplication.ui.base.BaseActivity;
-import com.trackmeapplication.ui.map.MapFragment;
-import com.trackmeapplication.ui.tracks.TracksFragment;
+import com.trackmeapplication.ui.home.map.MapFragment;
+import com.trackmeapplication.ui.home.tracks.TracksFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-import androidx.viewpager.widget.ViewPager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends BaseActivity implements IMainView {
     private IMainPresenter presenter = new MainPresenterImpl();
@@ -113,7 +76,7 @@ public class MainActivity extends BaseActivity implements IMainView {
                     return true;
                 }
             };
-    
+
     @Override
     protected MvpPresenter getPresenter() {
         return presenter;

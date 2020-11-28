@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.tracks.TracksFragment">
+    tools:context=".ui.home.tracks.TracksFragment">
 
     <TextView
         android:id="@+id/text_notifications"

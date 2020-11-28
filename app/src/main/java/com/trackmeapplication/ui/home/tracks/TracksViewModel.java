@@ -1,4 +1,4 @@
-package com.trackmeapplication.ui.tracks;
+package com.trackmeapplication.ui.home.tracks;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

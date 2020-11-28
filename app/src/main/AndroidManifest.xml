@@ -32,7 +32,7 @@
         </activity>
 
         <activity android:name=".ui.home.MainActivity"></activity>
-        <activity android:name=".ui.map.MapsActivity"></activity>
+        <activity android:name=".ui.home.map.MapsActivity"></activity>
 
 
     </application>
