@@ -84,7 +84,7 @@ public class RecordListViewAdapter implements ListAdapter {
                 public void onClick(View v) {
                     Intent intent = new Intent(context.getApplicationContext(), RouteDetailActivity.class);
                     intent.putExtra("RouteRecord", new Gson().toJson(record));
-//                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     context.startActivity(intent);
                 }
             });
