@@ -12,10 +12,12 @@ import java.util.Comparator;
 
 public class SharedViewModel extends ViewModel {
     private MutableLiveData<Boolean> isRunning = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isForeground = new MutableLiveData<>();
     private MutableLiveData<ArrayList<RouteRecord>> records = new MutableLiveData<>();
 
     public SharedViewModel() {
         isRunning.setValue(false);
+        isForeground.setValue(false);
     }
 
     public LiveData<ArrayList<RouteRecord>> getRecords() {
@@ -39,4 +41,8 @@ public class SharedViewModel extends ViewModel {
     public LiveData<Boolean> isRunning() { return isRunning;}
 
     public void setIsRunning(boolean value) { this.isRunning.setValue(value);}
+
+    public LiveData<Boolean> isForeground() { return isForeground;}
+
+    public void setIsForeground(boolean value) { this.isForeground.setValue(value);}
 }

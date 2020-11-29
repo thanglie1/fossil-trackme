@@ -2,9 +2,11 @@ package com.trackmeapplication.ui.main.map;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -24,6 +26,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
@@ -154,18 +157,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         return root;
     }
 
-    public void startService() {
-        Intent serviceIntent = new Intent(getActivity(), LocationService.class);
-        serviceIntent.putExtra("inputExtra", "Location");
-//        serviceIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-//                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        ContextCompat.startForegroundService(getActivity(), serviceIntent);
-//        ContextCompat.startService(getActivity(), serviceIntent);
-    }
 
-    public void stopService() {
-        Intent serviceIntent = new Intent(getContext(), LocationService.class);
-        getActivity().stopService(serviceIntent);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override

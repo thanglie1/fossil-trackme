@@ -74,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
 
         fm.beginTransaction().add(R.id.fragment_container, tracksFragment, "1").hide(tracksFragment).commit();
         fm.beginTransaction().add(R.id.fragment_container, mapFragment, "0").commit();
-
-        startService();
     }
 
     public void checkPermission(String... permissions) {
@@ -111,21 +109,26 @@ public class MainActivity extends AppCompatActivity {
         }
         else startService(serviceIntent);
     }
+
     public void stopService() {
         Intent serviceIntent = new Intent(this, LocationService.class);
         stopService(serviceIntent);
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onStop() {
         if (!sharedViewModel.isRunning().getValue()) {
             stopService();
         }
-        super.onDestroy();
+        else {
+            sharedViewModel.setIsForeground(true);
+        }
+        super.onStop();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onResume() {
+        startService();
+        super.onResume();
     }
 }
