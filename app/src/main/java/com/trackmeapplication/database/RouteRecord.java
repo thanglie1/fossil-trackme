@@ -2,11 +2,13 @@ package com.trackmeapplication.database;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RouteRecord {
+public class RouteRecord implements Serializable {
     private long ID;
     private float distance;
     private int duration;
@@ -15,6 +17,7 @@ public class RouteRecord {
     private ArrayList<List<LatLng>> route;
 
     public RouteRecord() {
+        route= new ArrayList<>();
     }
 
     public RouteRecord(long ID, float distance, int duration, float avgSpeed, LatLng startLocation, ArrayList<List<LatLng>> route) {

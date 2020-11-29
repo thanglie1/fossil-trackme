@@ -6,10 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.tracks.TracksFragment">
 
+    <TextView
+        android:id="@+id/txt_str_title_detail"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:text="@string/title_detail"
+        android:textSize="@dimen/text_size_super_big"
+        android:textColor="@color/green_52"
+        />
+
     <ListView
         android:id="@+id/list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
+        android:layout_height="match_parent"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:dividerHeight="4dp"
+        android:layout_below="@+id/txt_str_title_detail">
     </ListView>
 </RelativeLayout>

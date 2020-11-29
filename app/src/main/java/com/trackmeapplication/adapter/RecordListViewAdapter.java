@@ -1,6 +1,7 @@
 package com.trackmeapplication.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +9,16 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.trackmeapplication.R;
+import com.trackmeapplication.RouteDetailActivity;
 import com.trackmeapplication.database.RouteRecord;
 
+import org.w3c.dom.Text;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class RecordListViewAdapter implements ListAdapter {
     private ArrayList<RouteRecord> records;
@@ -75,12 +82,22 @@ public class RecordListViewAdapter implements ListAdapter {
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Intent intent = new Intent(context.getApplicationContext(), RouteDetailActivity.class);
+                    intent.putExtra("RouteRecord", new Gson().toJson(record));
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    context.startActivity(intent);
                 }
             });
-
+            TextView txtDescriptioin = (TextView)convertView.findViewById(R.id.txt_record_time);
             TextView txtViewSpeed = (TextView)convertView.findViewById(R.id.txt_record_avg_speed);
             TextView txtViewDuration = (TextView)convertView.findViewById(R.id.txt_record_duration);
             TextView txtViewDistance = (TextView)convertView.findViewById(R.id.txt_record_distance);
+
+            Date date = new java.util.Date(record.getID());
+            SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String formattedDate = sdf.format(date);
+
+            txtDescriptioin.setText(("Route: %1").replace("%1", formattedDate));
             txtViewSpeed.setText(("%1 m/s").replace("%1", String.format("%.02f", record.getAvgSpeed())));
             txtViewDuration.setText(("%1 s").replace("%1", String.valueOf(record.getDuration())));
             txtViewDistance.setText(("%1 m").replace("%1", String.format("%.02f", record.getDistance())));

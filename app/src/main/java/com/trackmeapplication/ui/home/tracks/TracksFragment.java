@@ -16,12 +16,12 @@ import com.trackmeapplication.R;
 import com.trackmeapplication.adapter.RecordListViewAdapter;
 import com.trackmeapplication.database.DatabaseHandler;
 import com.trackmeapplication.database.RouteRecord;
-import com.trackmeapplication.ui.sharedData.ListViewModel;
+import com.trackmeapplication.ui.sharedData.SharedViewModel;
 
 import java.util.ArrayList;
 
 public class TracksFragment extends Fragment {
-    private ListViewModel viewModel;
+    private SharedViewModel sharedViewModel;
     private ListView listView;
     private RecordListViewAdapter recordListViewAdapter;
 
@@ -30,16 +30,12 @@ public class TracksFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_tracks, container, false);
-        viewModel = new ViewModelProvider(this).get(ListViewModel.class);
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         loadData();
 
-        if (viewModel.getRecords().getValue().size() <= 0) {
-            return root;
-        }
+        recordListViewAdapter = new RecordListViewAdapter(new ArrayList<>(), getActivity());
 
-        recordListViewAdapter = new RecordListViewAdapter(viewModel.getRecords().getValue(), getActivity());
-
-        viewModel.getRecords().observe(getViewLifecycleOwner(), new Observer<ArrayList<RouteRecord>>() {
+        sharedViewModel.getRecords().observe(getViewLifecycleOwner(), new Observer<ArrayList<RouteRecord>>() {
             @Override
             public void onChanged(ArrayList<RouteRecord> records) {
                 recordListViewAdapter.setRecords(records);
@@ -59,7 +55,9 @@ public class TracksFragment extends Fragment {
 
     public void loadData() {
         DatabaseHandler handler = new DatabaseHandler(getActivity(), null, null, 1);
-        ArrayList<RouteRecord> data = handler.loadData();
-        viewModel.setRecords(data);
+        ArrayList<RouteRecord> data = handler.getAll();
+        if (data.isEmpty())
+            return;
+        sharedViewModel.setRecords(data);
     }
 }

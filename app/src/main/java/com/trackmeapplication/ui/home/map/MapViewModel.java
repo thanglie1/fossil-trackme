@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class MapViewModel extends ViewModel {
-    private MutableLiveData<Float> distance;
-    private MutableLiveData<Float> currentSpeed;
+    private final MutableLiveData<Float> distance;
+    private final MutableLiveData<Float> currentSpeed;
 
     public MapViewModel() {
         distance = new MutableLiveData<>();

@@ -73,7 +73,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return record;
     }
 
-    public ArrayList<RouteRecord> loadData() {
+    public ArrayList<RouteRecord> getAll() {
         String query = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);

@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //creat
         setContentView(R.layout.activity_main);
-        deleteDatabase("RouteRecordDB.db");
         checkPermission(PERMISSIONS);
         BottomNavigationView bottomNav = (BottomNavigationView) findViewById(R.id.nav_view);
         bottomNav.setOnNavigationItemSelectedListener(navListener);

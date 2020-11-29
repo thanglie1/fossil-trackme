@@ -17,9 +17,9 @@ import android.view.ViewGroup;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -41,7 +41,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.trackmeapplication.R;
 import com.trackmeapplication.database.DatabaseHandler;
 import com.trackmeapplication.database.RouteRecord;
-import com.trackmeapplication.ui.sharedData.ListViewModel;
+import com.trackmeapplication.ui.sharedData.SharedViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +49,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, LocationListener {
-    private ListViewModel viewModel;
-    private MapViewModel mapViewModel;
+    private SharedViewModel sharedViewModel;
     private GoogleMap mMap;
+    private MapViewModel mapViewModel;
     private LocationManager locationManager;
     private Location lastLocation;
     private Location startLocation;
@@ -71,7 +71,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     private boolean isRunning;
     private long pauseOffSet;
 
-    public MapFragment() {}
+    public MapFragment() {
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -95,6 +96,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                 btnRecord.setVisibility(View.GONE);
                 fragmentRecord.setVisibility(View.VISIBLE);
                 fragmentPauseStop.setVisibility(View.VISIBLE);
+                btnResume.setVisibility(View.GONE);
+                btnPause.setVisibility(View.VISIBLE);
                 handleStartAction();
             }
         });
@@ -131,26 +134,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         chronometer.setFormat("%s s");
         chronometer.setBase(SystemClock.elapsedRealtime());
 
-        viewModel = new ViewModelProvider(this).get(ListViewModel.class);
-        viewModel.getRecords().observe(getViewLifecycleOwner(), new Observer<ArrayList<RouteRecord>>() {
-            @Override
-            public void onChanged(ArrayList<RouteRecord> records) {
-
-            }
-        });
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
         mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
         mapViewModel.getCurrentSpeed().observe(getViewLifecycleOwner(), new Observer<Float>() {
             @Override
             public void onChanged(Float aFloat) {
-                txtCurrentSpeed.setText(("%1 m/s").replace("%1" ,String.valueOf(aFloat)));
+                txtCurrentSpeed.setText(("%1 m/s").replace("%1", String.format("%.02f", aFloat)));
             }
         });
 
         mapViewModel.getDistance().observe(getViewLifecycleOwner(), new Observer<Float>() {
             @Override
             public void onChanged(Float aFloat) {
-                txtDistance.setText(("%1 m").replace("%1" ,String.format("%.02f", aFloat)));
+                txtDistance.setText(("%1 m").replace("%1", String.format("%.02f", aFloat)));
             }
         });
 
@@ -159,23 +156,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        this.mMap = googleMap;
+        mMap = googleMap;
 
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         requestLatestLocation();
-
-        this.mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
-                markerOptions.title(latLng.latitude + " : " + latLng.longitude);
-                // Clear previously click position.
-                mMap.clear();
-                // Add Marker on Map
-                mMap.addMarker(markerOptions);
-            }
-        });
     }
 
     private void handleStartAction() {
@@ -195,6 +179,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         for (Polyline polyline : polylineList) {
             polyline.remove();
         }
+        mapViewModel.setCurrentSpeed(0);
+        mapViewModel.setDistance(0);
     }
 
     private void saveDatabase() {
@@ -202,12 +188,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         if (startLocation == null)
             return;
         ArrayList<List<LatLng>> routeList = new ArrayList<List<LatLng>>();
-        for (Polyline polyline: polylineList) {
+        for (Polyline polyline : polylineList) {
             routeList.add(polyline.getPoints());
         }
-        int elapsedSeconds = isRunning ? (int)(SystemClock.elapsedRealtime() - chronometer.getBase())/1000 : (int) pauseOffSet/1000;
-        RouteRecord record = new RouteRecord(System.currentTimeMillis()/1000, mapViewModel.getDistance().getValue(), elapsedSeconds, mapViewModel.getDistance().getValue() /elapsedSeconds, new LatLng(startLocation.getLatitude(), startLocation.getLongitude()), routeList);
+        int elapsedSeconds = isRunning ? (int) (SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000 : (int) pauseOffSet / 1000;
+        RouteRecord record = new RouteRecord(System.currentTimeMillis(), mapViewModel.getDistance().getValue(), elapsedSeconds, mapViewModel.getDistance().getValue() / elapsedSeconds, new LatLng(startLocation.getLatitude(), startLocation.getLongitude()), routeList);
         handler.add(record);
+
+        //Update data
+        ArrayList<RouteRecord> data = handler.getAll();
+        sharedViewModel.setRecords(data);
     }
 
     private void startChronometer() {
@@ -237,7 +227,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         mapViewModel.setCurrentSpeed(location.getSpeed());
 
         if (isRunning) {
-            moveCamera(location,-1);
+            moveCamera(location, -1);
             mapViewModel.setDistance(mapViewModel.getDistance().getValue() + location.distanceTo(lastLocation));
             Polyline polyline = mMap.addPolyline(new PolylineOptions().clickable(true)
                     .color(getResources().getColor(R.color.red_50))
@@ -280,12 +270,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                     .setNegativeButton("Cancel", null)
                     .show();
         }
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        this.mMap.setMyLocationEnabled(true);
 
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -295,7 +279,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         };
 
         reloadLocation = new Timer();
-        reloadLocation.schedule(timerTask,  2000, 2000);
+        reloadLocation.schedule(timerTask, 2000, 2000);
     }
 
     public void updateCurrentLocation() {
@@ -311,6 +295,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(new OnSuccessListener<Location>() {
                     @Override
@@ -320,6 +305,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                             moveCamera(location, 16);
                             onUpdateLocation();
                         }
+
+                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            // TODO: Consider calling
+                            //    ActivityCompat#requestPermissions
+                            // here to request the missing permissions, and then overriding
+                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                            //                                          int[] grantResults)
+                            // to handle the case where the user grants the permission. See the documentation
+                            // for ActivityCompat#requestPermissions for more details.
+                            return;
+                        }
+                        mMap.setMyLocationEnabled(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
