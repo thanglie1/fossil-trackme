@@ -11,10 +11,8 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.trackmeapplication.R;
-import com.trackmeapplication.RouteDetailActivity;
+import com.trackmeapplication.ui.detail.RouteDetailActivity;
 import com.trackmeapplication.database.RouteRecord;
-
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

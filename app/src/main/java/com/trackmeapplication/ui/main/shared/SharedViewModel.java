@@ -1,23 +1,21 @@
-package com.trackmeapplication.ui.sharedData;
-
-import android.content.Intent;
+package com.trackmeapplication.ui.main.shared;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.trackmeapplication.database.RouteRecord;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 
 public class SharedViewModel extends ViewModel {
+    private MutableLiveData<Boolean> isRunning = new MutableLiveData<>();
     private MutableLiveData<ArrayList<RouteRecord>> records = new MutableLiveData<>();
 
     public SharedViewModel() {
+        isRunning.setValue(false);
     }
 
     public LiveData<ArrayList<RouteRecord>> getRecords() {
@@ -37,4 +35,8 @@ public class SharedViewModel extends ViewModel {
         });
         this.records.setValue(records);
     }
+
+    public LiveData<Boolean> isRunning() { return isRunning;}
+
+    public void setIsRunning(boolean value) { this.isRunning.setValue(value);}
 }

@@ -1,4 +1,4 @@
-package com.trackmeapplication.ui.home.map;
+package com.trackmeapplication.ui.main.map;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -19,8 +19,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -41,7 +41,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.trackmeapplication.R;
 import com.trackmeapplication.database.DatabaseHandler;
 import com.trackmeapplication.database.RouteRecord;
-import com.trackmeapplication.ui.sharedData.SharedViewModel;
+import com.trackmeapplication.service.LocationService;
+import com.trackmeapplication.ui.main.shared.SharedViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     private View fragmentPauseStop;
 
     private Chronometer chronometer;
-    private boolean isRunning;
     private long pauseOffSet;
 
     public MapFragment() {
@@ -154,6 +154,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         return root;
     }
 
+    public void startService() {
+        Intent serviceIntent = new Intent(getActivity(), LocationService.class);
+        serviceIntent.putExtra("inputExtra", "Location");
+//        serviceIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+//                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        ContextCompat.startForegroundService(getActivity(), serviceIntent);
+//        ContextCompat.startService(getActivity(), serviceIntent);
+    }
+
+    public void stopService() {
+        Intent serviceIntent = new Intent(getContext(), LocationService.class);
+        getActivity().stopService(serviceIntent);
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -191,8 +205,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         for (Polyline polyline : polylineList) {
             routeList.add(polyline.getPoints());
         }
-        int elapsedSeconds = isRunning ? (int) (SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000 : (int) pauseOffSet / 1000;
-        RouteRecord record = new RouteRecord(System.currentTimeMillis(), mapViewModel.getDistance().getValue(), elapsedSeconds, mapViewModel.getDistance().getValue() / elapsedSeconds, new LatLng(startLocation.getLatitude(), startLocation.getLongitude()), routeList);
+        int elapsedSeconds = sharedViewModel.isRunning().getValue() ? (int) (SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000 : (int) pauseOffSet / 1000;
+        RouteRecord record = new RouteRecord(System.currentTimeMillis(), mapViewModel.getDistance().getValue(), elapsedSeconds, elapsedSeconds == 0 ? 0 : (mapViewModel.getDistance().getValue() / elapsedSeconds), new LatLng(startLocation.getLatitude(), startLocation.getLongitude()), routeList);
         handler.add(record);
 
         //Update data
@@ -201,23 +215,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void startChronometer() {
-        if (!isRunning) {
+        if (!sharedViewModel.isRunning().getValue()) {
             chronometer.setBase(SystemClock.elapsedRealtime() - pauseOffSet);
             chronometer.start();
-            isRunning = true;
+            sharedViewModel.setIsRunning(true);
         }
     }
 
     private void pauseChronometer() {
-        if (isRunning) {
+        if (sharedViewModel.isRunning().getValue()) {
             chronometer.stop();
             pauseOffSet = SystemClock.elapsedRealtime() - chronometer.getBase();
-            isRunning = false;
+            sharedViewModel.setIsRunning(false);
         }
     }
 
     private void resetChronometer() {
-        isRunning = false;
+        sharedViewModel.setIsRunning(false);
         chronometer.setBase(SystemClock.elapsedRealtime());
         pauseOffSet = 0;
     }
@@ -226,7 +240,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     public void onLocationChanged(Location location) {
         mapViewModel.setCurrentSpeed(location.getSpeed());
 
-        if (isRunning) {
+        if (sharedViewModel.isRunning().getValue()) {
             moveCamera(location, -1);
             mapViewModel.setDistance(mapViewModel.getDistance().getValue() + location.distanceTo(lastLocation));
             Polyline polyline = mMap.addPolyline(new PolylineOptions().clickable(true)

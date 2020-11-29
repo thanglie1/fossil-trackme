@@ -1,4 +1,4 @@
-package com.trackmeapplication.ui.home.tracks;
+package com.trackmeapplication.ui.main.tracks;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,7 +16,7 @@ import com.trackmeapplication.R;
 import com.trackmeapplication.adapter.RecordListViewAdapter;
 import com.trackmeapplication.database.DatabaseHandler;
 import com.trackmeapplication.database.RouteRecord;
-import com.trackmeapplication.ui.sharedData.SharedViewModel;
+import com.trackmeapplication.ui.main.shared.SharedViewModel;
 
 import java.util.ArrayList;
 

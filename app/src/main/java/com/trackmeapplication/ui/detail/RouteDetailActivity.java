@@ -1,4 +1,4 @@
-package com.trackmeapplication;
+package com.trackmeapplication.ui.detail;
 
 import android.content.Intent;
 import android.location.Location;
@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
+import com.trackmeapplication.R;
 import com.trackmeapplication.database.RouteRecord;
 
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class RouteDetailActivity extends AppCompatActivity implements OnMapReady
         txtAvgSpeed.setText(("%1 m/s").replace("%1",String.format("%.02f",record.getAvgSpeed())));
         TextView txtDistance = (TextView) findViewById(R.id.txt_distance);
         txtDistance.setText(("%1 m").replace("%1",String.format("%.02f",record.getDistance())));
+
         Chronometer chronometer = (Chronometer) findViewById(R.id.chronometer_duration);
         chronometer.setFormat("%s s");
         chronometer.setBase(SystemClock.elapsedRealtime());

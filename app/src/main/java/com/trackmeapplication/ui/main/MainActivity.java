@@ -1,29 +1,36 @@
-package com.trackmeapplication;
+package com.trackmeapplication.ui.main;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.trackmeapplication.ui.home.map.MapFragment;
-import com.trackmeapplication.ui.home.tracks.TracksFragment;
+import com.trackmeapplication.R;
+import com.trackmeapplication.service.LocationService;
+import com.trackmeapplication.ui.main.map.MapFragment;
+import com.trackmeapplication.ui.main.tracks.TracksFragment;
+import com.trackmeapplication.ui.main.shared.SharedViewModel;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private SharedViewModel sharedViewModel;
     private FragmentManager fm = getSupportFragmentManager();
-    final Fragment mapFragment = new MapFragment();
-    final Fragment tracksFragment = new TracksFragment();
+    private final Fragment mapFragment = new MapFragment();
+    private final Fragment tracksFragment = new TracksFragment();
     Fragment active = mapFragment;
 
     static final int PERMISSION_REQUEST_CODE = 202;
@@ -57,14 +64,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //creat
         setContentView(R.layout.activity_main);
+
         checkPermission(PERMISSIONS);
+        sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+
         BottomNavigationView bottomNav = (BottomNavigationView) findViewById(R.id.nav_view);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
 
         fm.beginTransaction().add(R.id.fragment_container, tracksFragment, "1").hide(tracksFragment).commit();
         fm.beginTransaction().add(R.id.fragment_container, mapFragment, "0").commit();
+
+        startService();
     }
 
     public void checkPermission(String... permissions) {
@@ -90,5 +101,31 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return list.toArray(new String[list.size()]);
+    }
+
+    public void startService() {
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        serviceIntent.putExtra("inputExtra", "Location...");
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
+            ContextCompat.startForegroundService(this, serviceIntent);
+        }
+        else startService(serviceIntent);
+    }
+    public void stopService() {
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        stopService(serviceIntent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (!sharedViewModel.isRunning().getValue()) {
+            stopService();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }
