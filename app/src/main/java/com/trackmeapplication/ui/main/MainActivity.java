@@ -117,11 +117,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        if (!sharedViewModel.isRunning().getValue()) {
+        if (!sharedViewModel.isRecording().getValue()) {
             stopService();
         }
         else {
-            sharedViewModel.setIsForeground(true);
+            sharedViewModel.setIsRecording(true);
         }
         super.onStop();
     }

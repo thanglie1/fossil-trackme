@@ -28,6 +28,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -42,7 +43,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class LocationService extends Service {
+public class LocationService extends Service implements LocationSource.OnLocationChangedListener {
     public static final String CHANNEL_ID = "TrackMeChannel";
     public static final int ONGOING_NOTIFICATION_ID = 1111;
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; //10*1 10 meters
@@ -60,14 +61,13 @@ public class LocationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Context context = this;
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        String input = intent.getStringExtra("inputExtra");
         createNotificationChannel();
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0);
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("TrackMe")
-                .setContentText(input)
+                .setContentText("Location...")
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.ic_main)
                 .build();
@@ -105,5 +105,10 @@ public class LocationService extends Service {
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(serviceChannel);
         }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
     }
 }

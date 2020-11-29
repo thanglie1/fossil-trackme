@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -21,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -46,6 +48,7 @@ import com.trackmeapplication.database.DatabaseHandler;
 import com.trackmeapplication.database.RouteRecord;
 import com.trackmeapplication.service.LocationService;
 import com.trackmeapplication.ui.main.shared.SharedViewModel;
+import com.trackmeapplication.utils.SharedPreferencesData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +80,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     public MapFragment() {
     }
 
+    public void loadInternalData() {
+        SharedPreferencesData.openPref(getActivity());
+        SharedPreferences pref = SharedPreferencesData.getSharedPreferences();
+        mapViewModel.setDistance(pref.getFloat("distance", 0));
+        mapViewModel.setCurrentSpeed(pref.getFloat("currentSpeed", 0));
+        int duration = pref.getInt("duration", 0);
+        chronometer.setBase(SystemClock.elapsedRealtime() - duration* 1000);
+        chronometer.start();
+        if (duration > 0){
+            sharedViewModel.setIsRecording(true);
+        }
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
+        editor.commit();
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_map, container, false);
@@ -96,6 +115,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sharedViewModel.setIsRecording(true);
                 btnRecord.setVisibility(View.GONE);
                 fragmentRecord.setVisibility(View.VISIBLE);
                 fragmentPauseStop.setVisibility(View.VISIBLE);
@@ -112,6 +132,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                 fragmentRecord.setVisibility(View.GONE);
                 fragmentPauseStop.setVisibility(View.GONE);
                 handleStopAction();
+                sharedViewModel.setIsRecording(false);
             }
         });
 
@@ -154,13 +175,43 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             }
         });
 
+        sharedViewModel.isRecording().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean) {
+                    btnRecord.setVisibility(View.GONE);
+                    fragmentRecord.setVisibility(View.VISIBLE);
+                    fragmentPauseStop.setVisibility(View.VISIBLE);
+                    btnResume.setVisibility(View.GONE);
+                    btnPause.setVisibility(View.VISIBLE);
+                }
+                else {
+                    btnRecord.setVisibility(View.VISIBLE);
+                    fragmentRecord.setVisibility(View.GONE);
+                    fragmentPauseStop.setVisibility(View.GONE);
+                }
+            }
+        });
+        loadInternalData();
         return root;
     }
 
-
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onStop() {
+        if (sharedViewModel.isRecording().getValue()) {
+            SharedPreferences.Editor pref = SharedPreferencesData.getSharedPreferences().edit();
+            pref.putFloat("distance", mapViewModel.getDistance().getValue());
+            pref.putFloat("currentSpeed", mapViewModel.getCurrentSpeed().getValue());
+            int elapsedSeconds = sharedViewModel.isRunning().getValue() ? (int) (SystemClock.elapsedRealtime() - chronometer.getBase()) / 1000 : (int) pauseOffSet / 1000;
+            pref.putInt("duration", elapsedSeconds);
+            pref.commit();
+        }
+        else {
+            SharedPreferences.Editor pref = SharedPreferencesData.getSharedPreferences().edit();
+            pref.clear();
+            pref.commit();
+        }
+        super.onStop();
     }
 
     @Override
@@ -172,11 +223,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void handleStartAction() {
-        //Register location Update
-        registerRequestLocationUpdates();
-
-        //Start chronometer
         startChronometer();
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+        try {
+            gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (gps_enabled && network_enabled) {
+            registerRequestLocationUpdates();
+        }
     }
 
     private void handleStopAction() {
